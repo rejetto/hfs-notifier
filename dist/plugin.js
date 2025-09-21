@@ -1,7 +1,7 @@
 exports.version = 0.2
 exports.description = "Get notifications about uploads and new connections (configurable)"
 exports.apiRequired = 12.3
-exports.preview = ["https://github.com/user-attachments/assets/1601cf66-ce05-4b84-b9e8-54f490f7628d"]
+exports.preview = ["https://github.com/user-attachments/assets/ab9a6916-c307-409a-af92-04f03a7ac357"]
 exports.config = {
     uploads: { type: 'boolean', defaultValue: true, label: "Notify on uploads" },
     newIp: { type: 'select', options: { never: false, "every hour": 1, "every day": 24, "every month": 30*24 }, defaultValue: false, label: "Notify on connection from new IP" },
