@@ -1,8 +1,9 @@
-exports.version = 0.3
+exports.version = 0.31
 exports.description = "Get notifications about uploads and new connections (configurable)"
 exports.apiRequired = 12.3
 exports.preview = ["https://github.com/user-attachments/assets/d57fbf30-cad1-4b1f-b385-3e898d352774"]
 exports.changelog = [
+    { "version": 0.31, "message": "Security: prevent command injection in desktop notifications" },
     { "version": 0.3, "message": "Email notifications" }
 ]
 const size = { xs: 6, sm: 4 }
@@ -26,8 +27,7 @@ exports.configDialog = { maxWidth: 'md' }
 
 exports.init = api => {
     const nodemailer = require('./nodemailer.bundle')
-    const { exec } = api.require('child_process')
-    const { cmdEscape, bashEscape } = api.require('./util-os')
+    const { execFile } = api.require('child_process')
     const { platform } = process
     const exe = api.require('path').join(__dirname, 'notify-send.exe') // https://vaskovsky.net/notify-send/
     const pending = { desktop: [], email: [] }
@@ -104,10 +104,10 @@ exports.init = api => {
 
     function sendDesktop(message, title) {
         return new Promise(resolve => {
-            const cmd = platform === 'win32' ? `${cmdEscape(exe)} ${cmdEscape(title)} ${cmdEscape(message)}`
-                : platform === 'darwin' ? `osascript -e 'display notification ${cmdEscape(message)} with title ${cmdEscape(title)}'`
-                : `notify-send ${bashEscape(title)} ${bashEscape(message)}`
-            exec(cmd, (err, stdout, stderr) => {
+            const [cmd, args] = platform === 'win32' ? [exe, [title, message]]
+                : platform === 'darwin' ? ['osascript', ['-e', 'on run argv', '-e', 'display notification (item 2 of argv) with title (item 1 of argv)', '-e', 'end run', title, message]]
+                    : ['notify-send', [title, message]]
+            execFile(cmd, args, (err, stdout, stderr) => {
                 if (err || stderr)
                     api.log(String(err || stderr))
                 resolve()
